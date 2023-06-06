@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { Usuario } from 'src/app/models/usuario.model';
 import { UsuarioService } from 'src/app/services/usuario.service';
+import { environment } from 'src/environments/environment';
+
 
 @Component({
   selector: 'app-header',
@@ -7,9 +10,15 @@ import { UsuarioService } from 'src/app/services/usuario.service';
   styles: [
   ]
 })
+
 export class HeaderComponent implements OnInit {
 
-  constructor( private usuarioService:UsuarioService) { }
+  base_url = environment.base_url;
+  constructor( private usuarioService:UsuarioService) {
+    console.log(this.base_url);
+    this.usuario = usuarioService.usuario;
+  }
+  public usuario: Usuario;
 
   ngOnInit(): void {
   }

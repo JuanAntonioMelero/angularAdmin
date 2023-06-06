@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Usuario } from 'src/app/models/usuario.model';
+import { FileUploadService } from 'src/app/services/file-upload.service';
 import { UsuarioService } from 'src/app/services/usuario.service';
+import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -10,12 +12,9 @@ import Swal from 'sweetalert2';
   styleUrls: ['./perfil.component.css']
 })
 export class PerfilComponent  implements OnInit{
+  base_url = environment.base_url;
 
-  public perfilForm: FormGroup = this.fb.group({
-    nombre:'',
-    email:'',
-    role:'USER'
-  })
+  public perfilForm: FormGroup;
 
   public usuario: Usuario;
   public imagenSubir: File;
@@ -23,6 +22,7 @@ export class PerfilComponent  implements OnInit{
 
   constructor( private fb:FormBuilder,
     private usuarioService: UsuarioService,
+    private fileUploadService: FileUploadService
     ){
       this.usuario = usuarioService.usuario;
     }
@@ -30,8 +30,8 @@ export class PerfilComponent  implements OnInit{
   ngOnInit():void{
     this.perfilForm = this.fb.group({
       nombre: [ this.usuario.nombre , Validators.required ],
-      email: [ this.usuario.email, [ Validators.required, Validators.email ] ],
-      role:'USER'
+      email: [ this.usuario.email, [ Validators.required, Validators.email ],
+       ]
     })
   }
 
@@ -39,7 +39,7 @@ export class PerfilComponent  implements OnInit{
     this.usuarioService.actualizarPerfil( this.perfilForm.value )
     .subscribe( (resp) => {
       console.log(resp);
-      const { nombre, email,role  } = this.perfilForm.value;
+      const { nombre, email  } = this.perfilForm.value;
       this.usuario.nombre = nombre;
       this.usuario.email = email;
 
@@ -48,21 +48,37 @@ export class PerfilComponent  implements OnInit{
       Swal.fire('Error', err.error.msg, 'error');
     });
   };
-  cambiarImagen( file: File ) {
-    this.imagenSubir = file;
+  // cambiarImagen( file: File ) {
+  //   this.imagenSubir = file;
 
-    if ( !file ) {
-      return this.imgTemp = null;
-    }
+  //   if ( !file ) {
+  //     return this.imgTemp = null;
+  //   }
 
-    const reader = new FileReader();
-    reader.readAsDataURL( file );
+  //   const reader = new FileReader();
+  //   reader.readAsDataURL( file );
 
-    reader.onloadend = () => {
-      this.imgTemp = reader.result;
-    }
-    return this.imgTemp;
+  //   reader.onloadend = () => {
+  //     this.imgTemp = reader.result;
+  //   }
+
+  // }
+  cambiarImagen(event){
+    console.log(event.target.files[0]);
+    this.imagenSubir=event.target.files[0];
+
   }
+  subirImagen(){
+    console.log('hola');
 
-  subirImagen(){}
+    this.fileUploadService
+    .actualizarFoto( this.imagenSubir, 'usuarios', this.usuario.uid )
+    .then( img => {
+      this.usuario.img = img;
+      Swal.fire('Guardado', 'Imagen de usuario actualizada', 'success');
+    }).catch( err => {
+      console.log(err);
+      Swal.fire('Error', 'No se pudo subir la imagen', 'error');
+    })
+  }
 }

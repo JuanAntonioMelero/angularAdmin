@@ -12,7 +12,7 @@ import Swal from 'sweetalert2';
 export class LoginComponent {
   public formSubmitted = false;
   public loginForm=this.fb.group({
-    email: ['', [Validators.required, Validators.email] ],
+    email: [localStorage.getItem('email') || '', [Validators.required, Validators.email] ],
     password: ['', Validators.required ],
     remember: false
 

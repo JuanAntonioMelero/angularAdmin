@@ -50,12 +50,7 @@ export class UsuarioService {
       tap( (resp: any) => {
 
         localStorage.setItem('token', resp.token );
-        this.validarToken().subscribe(
-          resp => {
 
-            console.log(resp);
-        }
-        );
       })
     );
 
@@ -73,7 +68,7 @@ export class UsuarioService {
       this.usuario = resp.usuario;
 
       console.log(this.usuario);
-      //localStorage.setItem('token', resp.token );
+      localStorage.setItem('token', resp.token );
       return true;
     }),
       catchError( error => of(false) )
@@ -87,10 +82,10 @@ export class UsuarioService {
   }
   actualizarPerfil( data: { email: string, nombre: string, role: string } ) {
 
-    // data = {
-    //   ...data,
-    //   role: this.usuario.role
-    // };
+     data = {
+       ...data,
+       role: this.usuario.role
+     };
 
     return this.http.put(`${ base_url }/usuarios/${ this.uid }`, data, {
       headers: {
